@@ -2,70 +2,80 @@
 class SpriteKind:
     humb = SpriteKind.create()
 def set_game():
-    global enemy
-    c.set_position(randint(0, 160), randint(0, 120))
+    my_food.set_position(randint(0, 160), randint(0, 120))
     if score == 0:
-        controller.move_sprite(a, 100, 100)
-        a.set_stay_in_screen(True)
+        controller.move_sprite(me, 100, 100)
+        me.set_stay_in_screen(True)
     for index in range(score):
         if randint(0, 3) == 0:
-            enemy = sprites.create(assets.image("""
-                poison
-            """), SpriteKind.enemy)
-            enemy.set_position(randint(0, 160), randint(0, 120))
+            get_new_enemy()
+
 
 def on_up_pressed():
-    a.set_image(assets.image("""
+    me.set_image(assets.image("""
         play-p2
     """))
+    setPlayerXY()
 controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
+def get_new_enemy():
+    global enemy2, times
+    enemy2 = sprites.create(assets.image("""
+        poison
+    """), SpriteKind.enemy)
+    enemy2.set_position(randint(0, 160), randint(0, 120))
+    if me.overlaps_with(enemy2):
+        enemy2.destroy()
+        if times > 10:
+            times = times + 1
+            get_new_enemy()
+
 def on_left_pressed():
-    a.set_image(assets.image("""
+    me.set_image(assets.image("""
         play-p1
     """))
+    setPlayerXY()
 controller.left.on_event(ControllerButtonEvent.PRESSED, on_left_pressed)
 
 def on_on_overlap(sprite2, otherSprite2):
-    global score
     on_end(True)
 sprites.on_overlap(SpriteKind.player, SpriteKind.enemy, on_on_overlap)
 
 def on_right_pressed():
-    a.set_image(assets.image("""
+    me.set_image(assets.image("""
         play-p3
     """))
+    setPlayerXY()
 controller.right.on_event(ControllerButtonEvent.PRESSED, on_right_pressed)
 
 def initial_state():
-    global a, c, poisons, enemy
+    global me, my_food, poisons
     scene.set_background_image(assets.image("""
         forest
     """))
-    a = sprites.create(assets.image("""
+    me = sprites.create(assets.image("""
         play-front
     """), SpriteKind.player)
-    c = sprites.create(assets.image("""
+    my_food = sprites.create(assets.image("""
         burger
     """), SpriteKind.food)
     poisons = game.ask_for_number("how many initial poisons?", 2)
     for index2 in range(poisons):
-        enemy = sprites.create(assets.image("""
-            poison
-        """), SpriteKind.enemy)
-        enemy.set_position(randint(0, 160), randint(0, 120))
+        get_new_enemy()
+def setPlayerXY():
+    print(":)")
 
 def on_down_pressed():
-    a.set_image(assets.image("""
+    me.set_image(assets.image("""
         play-front
     """))
+    setPlayerXY()
 controller.down.on_event(ControllerButtonEvent.PRESSED, on_down_pressed)
 
 def choose_game_type():
     print("uff")
 
 def on_on_overlap2(sprite, otherSprite):
-    global score
     on_end(False)
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap2)
 
@@ -73,17 +83,18 @@ def on_end(lost: bool):
     global score
     if lost == True:
         game.splash("end you'r score is " + ("" + str(score)))
-        
         game.reset()
     else:
         score += 1
-        a.say_text("Score: " + ("" + str(score)), 2000, True)
+        me.say_text("Score: " + ("" + str(score)), 2000, True)
         set_game()
 poisons = 0
-enemy: Sprite = None
-a: Sprite = None
+times = 0
+enemy2: Sprite = None
+me: Sprite = None
 score = 0
-c: Sprite = None
+my_food: Sprite = None
+enemy = None
 choose_game_type()
 initial_state()
 set_game()
