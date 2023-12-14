@@ -20,9 +20,7 @@ controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 def get_new_enemy():
     global enemy, times
     rand1 = 0
-    enemy = sprites.create(assets.image("""
-        poison
-    """), SpriteKind.enemy)
+    enemy = sprites.create(assets.image("""poison"""), SpriteKind.enemy)
     print("" + str(maxX))
     print("" + str(rand1))
     enemy.set_position(randint(0, maxX), randint(0, maxY))
@@ -57,14 +55,11 @@ def initial_state():
     scene.set_background_image(assets.image("""
         liberte
     """))
-    tiles.set_current_tilemap(tilemap("""level1"""))
     me = sprites.create(assets.image("""
         play-front
     """), SpriteKind.player)
     scene.camera_follow_sprite(me)
-    my_food = sprites.create(assets.image("""
-        burger
-    """), SpriteKind.food)
+    my_food = sprites.create(assets.image("""burger"""), SpriteKind.food)
     poisons = game.ask_for_number("how many initial poisons?", 2)
     for index2 in range(poisons):
         get_new_enemy()
