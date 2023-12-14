@@ -2,14 +2,13 @@
 class SpriteKind:
     humb = SpriteKind.create()
 def set_game():
-    my_food.set_position(randint(0, 160), randint(0, 120))
+    my_food.set_position(randint(0, maxX), randint(0, maxY))
     if score == 0:
         controller.move_sprite(me, 100, 100)
         me.set_stay_in_screen(True)
     for index in range(score):
         if randint(0, 3) == 0:
             get_new_enemy()
-
 
 def on_up_pressed():
     me.set_image(assets.image("""
@@ -19,16 +18,21 @@ def on_up_pressed():
 controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
 def get_new_enemy():
-    global enemy2, times
-    enemy2 = sprites.create(assets.image("""
+    global enemy, times
+    rand1 = 0
+    enemy = sprites.create(assets.image("""
         poison
     """), SpriteKind.enemy)
-    enemy2.set_position(randint(0, 160), randint(0, 120))
-    if me.overlaps_with(enemy2):
-        enemy2.destroy()
-        if times > 10:
+    print("" + str(maxX))
+    print("" + str(rand1))
+    enemy.set_position(randint(0, maxX), randint(0, maxY))
+    if me.overlaps_with(enemy):
+        enemy.destroy()
+        if times < 10:
             times = times + 1
             get_new_enemy()
+    else:
+        times = 0
 
 def on_left_pressed():
     me.set_image(assets.image("""
@@ -51,11 +55,13 @@ controller.right.on_event(ControllerButtonEvent.PRESSED, on_right_pressed)
 def initial_state():
     global me, my_food, poisons
     scene.set_background_image(assets.image("""
-        forest
+        liberte
     """))
+    tiles.set_current_tilemap(tilemap("""level1"""))
     me = sprites.create(assets.image("""
         play-front
     """), SpriteKind.player)
+    scene.camera_follow_sprite(me)
     my_food = sprites.create(assets.image("""
         burger
     """), SpriteKind.food)
@@ -90,11 +96,14 @@ def on_end(lost: bool):
         set_game()
 poisons = 0
 times = 0
-enemy2: Sprite = None
+enemy: Sprite = None
 me: Sprite = None
 score = 0
 my_food: Sprite = None
-enemy = None
+maxY = 0
+maxX = 0
+maxX = 479
+maxY = 385
 choose_game_type()
 initial_state()
 set_game()
