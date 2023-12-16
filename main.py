@@ -93,7 +93,7 @@ def initial_state():
         lib2
     """))
     scene.camera_follow_sprite(me)
-    poisons = game.ask_for_number("how many initial poisons?", 2)
+    poisons = game.ask_for_number("How many initial poisons?", 2)
     for index2 in range(poisons):
         get_new_enemy()
     score = poisons
