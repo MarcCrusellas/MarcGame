@@ -20,34 +20,29 @@ def on_b_pressed():
     atackB()
 controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
 
-def get_same_sign(num, num_to_cpy_sign):
-    if (num == 0 or num_to_cpy_sign == 0):
-        return num
-    if (num_to_cpy_sign >= 0):
-        if (num >= 0):
-            return num
-        else :
-            return num * -1
-    else:
-        if (num >= 0):
-            return num * -1
-        else :
-            return num
-
 def on_a_pressed():
     if me.vx != 0 or me.vy != 0:
         if me.vx != 0 and me.vy != 0:
             projectile = sprites.create_projectile_from_sprite(assets.image("""
-                dart
-            """), me, me.vx + get_same_sign(30, me.vx), me.vy + get_same_sign(30, me.vy))
+                    dart
+                """),
+                me,
+                me.vx + get_same_sign(30, me.vx),
+                me.vy + get_same_sign(30, me.vy))
         elif me.vx != 0:
             projectile = sprites.create_projectile_from_sprite(assets.image("""
-                dart
-            """), me, me.vx + get_same_sign(30, me.vx), me.vy)
+                    dart
+                """),
+                me,
+                me.vx + get_same_sign(30, me.vx),
+                me.vy)
         else:
             projectile = sprites.create_projectile_from_sprite(assets.image("""
-                dart
-            """), me, me.vx,  me.vy + get_same_sign(30, me.vy))
+                    dart
+                """),
+                me,
+                me.vx,
+                me.vy + get_same_sign(30, me.vy))
 controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
 
 def get_new_enemy():
@@ -55,7 +50,7 @@ def get_new_enemy():
     enemy = sprites.create(assets.image("""
         poison
     """), SpriteKind.enemy)
-    statEnemy = statusbars.create(10, 4, StatusBarKind.enemy_health)
+    statEnemy = statusbars.create(20, 2, StatusBarKind.enemy_health)
     statEnemy.attach_to_sprite(enemy)
     tiles.place_on_tile(enemy,
         tiles.get_tile_location(randint(1, 24), randint(1, 24)))
@@ -124,6 +119,19 @@ def on_down_pressed():
     """))
 controller.down.on_event(ControllerButtonEvent.PRESSED, on_down_pressed)
 
+def get_same_sign(num: number, num_to_cpy_sign: number):
+    if num == 0 or num_to_cpy_sign == 0:
+        return num
+    if num_to_cpy_sign >= 0:
+        if num >= 0:
+            return num
+        else:
+            return num * -1
+    elif num >= 0:
+        return num * -1
+    else:
+        return num
+
 def on_on_overlap2(sprite, otherSprite):
     on_end(False)
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap2)
@@ -143,7 +151,7 @@ def on_on_overlap3(sprite3, otherSprite3):
     print("a2")
     enemyStats = statusbars.get_status_bar_attached_to(StatusBarKind.enemy_health, otherSprite3)
     if enemyStats != None:
-        enemyStats.value += -25
+        enemyStats.value += -50
     else:
         sprite3.say_text("nope")
     sprites.destroy(sprite3)
@@ -164,5 +172,9 @@ my_food = sprites.create(assets.image("""
 me = sprites.create(assets.image("""
     play-front
 """), SpriteKind.player)
+effects.confetti.start_screen_effect()
 initial_state()
 set_game()
+melody = music.string_playable("C5 E E C5 E E D C ", 120)
+for index3 in range(4):
+    music.play(melody, music.PlaybackMode.UNTIL_DONE)
