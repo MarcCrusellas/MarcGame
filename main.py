@@ -9,14 +9,6 @@ def set_game():
         me.set_stay_in_screen(True)
     for index in range(score * 3):
         get_new_enemy()
-    music.play(music.string_playable("C5 E E C5 E E D C ", 150),
-        music.PlaybackMode.UNTIL_DONE)
-    music.play(music.string_playable("B A A G A A B A ", 225),
-        music.PlaybackMode.UNTIL_DONE)
-    music.play(music.string_playable("C5 B C5 B C5 B C5 B ", 300),
-        music.PlaybackMode.UNTIL_DONE)
-    music.play(music.string_playable("G F E F G F E F ", 300),
-        music.PlaybackMode.UNTIL_DONE)
 
 def on_up_pressed():
     me.set_image(assets.image("""
@@ -64,7 +56,6 @@ def get_new_enemy():
         tiles.get_tile_location(randint(1, 24), randint(1, 24)))
     if me.overlaps_with(enemy):
         enemy.destroy()
-        print("- " + ("" + str(times)))
         if times < 10:
             times = times + 1
             get_new_enemy()
@@ -152,11 +143,19 @@ def on_end(lost: bool):
     else:
         score += 1
         me.say_text("Score: " + ("" + str(score)), 2000, True)
+        effects.confetti.start_screen_effect(200)
+        music.play(music.string_playable("C5 E E C5 E E D C ", 150),
+            music.PlaybackMode.UNTIL_DONE)
+        music.play(music.string_playable("B A A G A A B A ", 225),
+            music.PlaybackMode.UNTIL_DONE)
+        music.play(music.string_playable("C5 B C5 B C5 B C5 B ", 300),
+            music.PlaybackMode.UNTIL_DONE)
+        music.play(music.string_playable("G F E F G F E F ", 300),
+            music.PlaybackMode.UNTIL_DONE)
         set_game()
 
 def on_on_overlap3(sprite3, otherSprite3):
     global enemyStats
-    print("a2")
     enemyStats = statusbars.get_status_bar_attached_to(StatusBarKind.enemy_health, otherSprite3)
     if enemyStats != None:
         enemyStats.value += -50
@@ -174,12 +173,17 @@ poisons = 0
 score = 0
 me: Sprite = None
 my_food: Sprite = None
+music.set_volume(255)
 my_food = sprites.create(assets.image("""
     burger
 """), SpriteKind.food)
 me = sprites.create(assets.image("""
     play-front
 """), SpriteKind.player)
-effects.confetti.start_screen_effect()
 initial_state()
 set_game()
+
+def on_forever():
+    music.play(music.string_playable("B A D E F A A F ", 120),
+        music.PlaybackMode.UNTIL_DONE)
+forever(on_forever)
