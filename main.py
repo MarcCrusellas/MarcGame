@@ -9,6 +9,14 @@ def set_game():
         me.set_stay_in_screen(True)
     for index in range(score * 3):
         get_new_enemy()
+    music.play(music.string_playable("C5 E E C5 E E D C ", 150),
+        music.PlaybackMode.UNTIL_DONE)
+    music.play(music.string_playable("B A A G A A B A ", 225),
+        music.PlaybackMode.UNTIL_DONE)
+    music.play(music.string_playable("C5 B C5 B C5 B C5 B ", 300),
+        music.PlaybackMode.UNTIL_DONE)
+    music.play(music.string_playable("G F E F G F E F ", 300),
+        music.PlaybackMode.UNTIL_DONE)
 
 def on_up_pressed():
     me.set_image(assets.image("""
@@ -175,6 +183,3 @@ me = sprites.create(assets.image("""
 effects.confetti.start_screen_effect()
 initial_state()
 set_game()
-melody = music.string_playable("C5 E E C5 E E D C ", 120)
-for index3 in range(4):
-    music.play(melody, music.PlaybackMode.UNTIL_DONE)
