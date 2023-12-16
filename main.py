@@ -2,78 +2,135 @@
 class SpriteKind:
     humb = SpriteKind.create()
 def set_game():
-    my_food.set_position(randint(0, 160), randint(0, 120))
-    if score == 0:
+    tiles.place_on_tile(my_food,
+        tiles.get_tile_location(randint(1, 24), randint(1, 24)))
+    if score == poisons:
         controller.move_sprite(me, 100, 100)
         me.set_stay_in_screen(True)
-    for index in range(score):
-        if randint(0, 3) == 0:
-            get_new_enemy()
-
+    for index in range(score * 3):
+        get_new_enemy()
 
 def on_up_pressed():
     me.set_image(assets.image("""
         play-p2
     """))
-    setPlayerXY()
 controller.up.on_event(ControllerButtonEvent.PRESSED, on_up_pressed)
 
+def on_b_pressed():
+    atackB()
+controller.B.on_event(ControllerButtonEvent.PRESSED, on_b_pressed)
+
+def on_a_pressed():
+    if me.vx != 0 or me.vy != 0:
+        if me.vx != 0 and me.vy != 0:
+            projectile = sprites.create_projectile_from_sprite(assets.image("""
+                    dart
+                """),
+                me,
+                me.vx + get_same_sign(30, me.vx),
+                me.vy + get_same_sign(30, me.vy))
+        elif me.vx != 0:
+            projectile = sprites.create_projectile_from_sprite(assets.image("""
+                    dart
+                """),
+                me,
+                me.vx + get_same_sign(30, me.vx),
+                me.vy)
+        else:
+            projectile = sprites.create_projectile_from_sprite(assets.image("""
+                    dart
+                """),
+                me,
+                me.vx,
+                me.vy + get_same_sign(30, me.vy))
+controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
+
 def get_new_enemy():
-    global enemy2, times
-    enemy2 = sprites.create(assets.image("""
+    global enemy, statEnemy, times
+    enemy = sprites.create(assets.image("""
         poison
     """), SpriteKind.enemy)
-    enemy2.set_position(randint(0, 160), randint(0, 120))
-    if me.overlaps_with(enemy2):
-        enemy2.destroy()
-        if times > 10:
+    statEnemy = statusbars.create(20, 2, StatusBarKind.enemy_health)
+    statEnemy.attach_to_sprite(enemy)
+    tiles.place_on_tile(enemy,
+        tiles.get_tile_location(randint(1, 24), randint(1, 24)))
+    if me.overlaps_with(enemy):
+        enemy.destroy()
+        print("- " + ("" + str(times)))
+        if times < 10:
             times = times + 1
             get_new_enemy()
+        else:
+            times = 0
+    else:
+        times = 0
 
 def on_left_pressed():
     me.set_image(assets.image("""
         play-p1
     """))
-    setPlayerXY()
 controller.left.on_event(ControllerButtonEvent.PRESSED, on_left_pressed)
 
 def on_on_overlap(sprite2, otherSprite2):
     on_end(True)
 sprites.on_overlap(SpriteKind.player, SpriteKind.enemy, on_on_overlap)
 
+def on_on_zero(status):
+    sprites.destroy(status.sprite_attached_to(), effects.fire, 100)
+statusbars.on_zero(StatusBarKind.enemy_health, on_on_zero)
+
 def on_right_pressed():
     me.set_image(assets.image("""
         play-p3
     """))
-    setPlayerXY()
 controller.right.on_event(ControllerButtonEvent.PRESSED, on_right_pressed)
 
 def initial_state():
-    global me, my_food, poisons
-    scene.set_background_image(assets.image("""
-        forest
+    global poisons, score
+    tiles.set_current_tilemap(tilemap("""
+        level
     """))
-    me = sprites.create(assets.image("""
-        play-front
-    """), SpriteKind.player)
-    my_food = sprites.create(assets.image("""
-        burger
-    """), SpriteKind.food)
+    scene.set_background_image(assets.image("""
+        lib2
+    """))
+    scene.camera_follow_sprite(me)
     poisons = game.ask_for_number("how many initial poisons?", 2)
     for index2 in range(poisons):
         get_new_enemy()
-def setPlayerXY():
-    print(":)")
+    score = poisons
+def atackB():
+    global projectileB
+    projectileB = sprites.create_projectile_from_sprite(assets.image("""
+        dart
+    """), me, 10, 10)
+    projectileB = sprites.create_projectile_from_sprite(assets.image("""
+        dart
+    """), me, -10, -10)
+    projectileB = sprites.create_projectile_from_sprite(assets.image("""
+        dart
+    """), me, -10, 10)
+    projectileB = sprites.create_projectile_from_sprite(assets.image("""
+        dart
+    """), me, 10, -10)
 
 def on_down_pressed():
     me.set_image(assets.image("""
         play-front
     """))
-    setPlayerXY()
 controller.down.on_event(ControllerButtonEvent.PRESSED, on_down_pressed)
 
-def choose_game_type():
-    print("uff")
+def get_same_sign(num: number, num_to_cpy_sign: number):
+    if num == 0 or num_to_cpy_sign == 0:
+        return num
+    if num_to_cpy_sign >= 0:
+        if num >= 0:
+            return num
+        else:
+            return num * -1
+    elif num >= 0:
+        return num * -1
+    else:
+        return num
 
 def on_on_overlap2(sprite, otherSprite):
     on_end(False)
@@ -88,13 +145,36 @@ def on_end(lost: bool):
         score += 1
         me.say_text("Score: " + ("" + str(score)), 2000, True)
         set_game()
-poisons = 0
+
+def on_on_overlap3(sprite3, otherSprite3):
+    global enemyStats
+    print("a2")
+    enemyStats = statusbars.get_status_bar_attached_to(StatusBarKind.enemy_health, otherSprite3)
+    if enemyStats != None:
+        enemyStats.value += -50
+    else:
+        sprite3.say_text("nope")
+    sprites.destroy(sprite3)
+sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, on_on_overlap3)
+
+enemyStats: StatusBarSprite = None
+projectileB: Sprite = None
 times = 0
-enemy2: Sprite = None
-me: Sprite = None
+statEnemy: StatusBarSprite = None
+enemy: Sprite = None
+poisons = 0
 score = 0
+me: Sprite = None
 my_food: Sprite = None
-enemy = None
-choose_game_type()
+my_food = sprites.create(assets.image("""
+    burger
+"""), SpriteKind.food)
+me = sprites.create(assets.image("""
+    play-front
+"""), SpriteKind.player)
+effects.confetti.start_screen_effect()
 initial_state()
 set_game()
+melody = music.string_playable("C5 E E C5 E E D C ", 120)
+for index3 in range(4):
+    music.play(melody, music.PlaybackMode.UNTIL_DONE)

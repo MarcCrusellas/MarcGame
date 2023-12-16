@@ -1,114 +1,137 @@
 namespace SpriteKind {
     export const humb = SpriteKind.create()
 }
-
-function set_game() {
-    my_food.setPosition(randint(0, 160), randint(0, 120))
-    if (score == 0) {
+function set_game () {
+    tiles.placeOnTile(my_food, tiles.getTileLocation(randint(1, 24), randint(1, 24)))
+    if (score == poisons) {
         controller.moveSprite(me, 100, 100)
         me.setStayInScreen(true)
     }
-    
-    for (let index = 0; index < score; index++) {
-        if (randint(0, 3) == 0) {
-            get_new_enemy()
-        }
-        
-    }
-}
-
-controller.up.onEvent(ControllerButtonEvent.Pressed, function on_up_pressed() {
-    me.setImage(assets.image`
-        play-p2
-    `)
-    setPlayerXY()
-})
-function get_new_enemy() {
-    
-    enemy2 = sprites.create(assets.image`
-        poison
-    `, SpriteKind.Enemy)
-    enemy2.setPosition(randint(0, 160), randint(0, 120))
-    if (me.overlapsWith(enemy2)) {
-        enemy2.destroy()
-        if (times > 10) {
-            times = times + 1
-            get_new_enemy()
-        }
-        
-    }
-    
-}
-
-controller.left.onEvent(ControllerButtonEvent.Pressed, function on_left_pressed() {
-    me.setImage(assets.image`
-        play-p1
-    `)
-    setPlayerXY()
-})
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap(sprite2: Sprite, otherSprite2: Sprite) {
-    on_end(true)
-})
-controller.right.onEvent(ControllerButtonEvent.Pressed, function on_right_pressed() {
-    me.setImage(assets.image`
-        play-p3
-    `)
-    setPlayerXY()
-})
-function initial_state() {
-    
-    scene.setBackgroundImage(assets.image`
-        forest
-    `)
-    me = sprites.create(assets.image`
-        play-front
-    `, SpriteKind.Player)
-    my_food = sprites.create(assets.image`
-        burger
-    `, SpriteKind.Food)
-    poisons = game.askForNumber("how many initial poisons?", 2)
-    for (let index2 = 0; index2 < poisons; index2++) {
+    for (let index = 0; index < score * 3; index++) {
         get_new_enemy()
     }
 }
-
-function setPlayerXY() {
-    console.log(":)")
-}
-
-controller.down.onEvent(ControllerButtonEvent.Pressed, function on_down_pressed() {
-    me.setImage(assets.image`
-        play-front
-    `)
-    setPlayerXY()
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    me.setImage(assets.image`play-p2`)
 })
-function choose_game_type() {
-    console.log("uff")
+controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
+    atackB()
+})
+controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
+    let projectile: Sprite;
+if (me.vx != 0 || me.vy != 0) {
+        if (me.vx != 0 && me.vy != 0) {
+            projectile = sprites.createProjectileFromSprite(assets.image`dart`, me, me.vx + get_same_sign(30, me.vx), me.vy + get_same_sign(30, me.vy))
+        } else if (me.vx != 0) {
+            projectile = sprites.createProjectileFromSprite(assets.image`dart`, me, me.vx + get_same_sign(30, me.vx), me.vy)
+        } else {
+            projectile = sprites.createProjectileFromSprite(assets.image`dart`, me, me.vx, me.vy + get_same_sign(30, me.vy))
+        }
+    }
+})
+function get_new_enemy () {
+    enemy = sprites.create(assets.image`poison`, SpriteKind.Enemy)
+    statEnemy = statusbars.create(20, 2, StatusBarKind.EnemyHealth)
+    statEnemy.attachToSprite(enemy)
+    tiles.placeOnTile(enemy, tiles.getTileLocation(randint(1, 24), randint(1, 24)))
+    if (me.overlapsWith(enemy)) {
+        enemy.destroy()
+        console.log("- " + ("" + times))
+        if (times < 10) {
+            times = times + 1
+            get_new_enemy()
+        } else {
+            times = 0
+        }
+    } else {
+        times = 0
+    }
 }
-
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap2(sprite: Sprite, otherSprite: Sprite) {
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    me.setImage(assets.image`play-p1`)
+})
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite2, otherSprite2) {
+    on_end(true)
+})
+statusbars.onZero(StatusBarKind.EnemyHealth, function (status) {
+    sprites.destroy(status.spriteAttachedTo(), effects.fire, 100)
+})
+controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    me.setImage(assets.image`play-p3`)
+})
+function initial_state () {
+    tiles.setCurrentTilemap(tilemap`level`)
+    scene.setBackgroundImage(assets.image`lib2`)
+    scene.cameraFollowSprite(me)
+    poisons = game.askForNumber("how many initial poisons?", 2)
+    for (let index = 0; index < poisons; index++) {
+        get_new_enemy()
+    }
+    score = poisons
+}
+function atackB () {
+    projectileB = sprites.createProjectileFromSprite(assets.image`dart`, me, 10, 10)
+    projectileB = sprites.createProjectileFromSprite(assets.image`dart`, me, -10, -10)
+    projectileB = sprites.createProjectileFromSprite(assets.image`dart`, me, -10, 10)
+    projectileB = sprites.createProjectileFromSprite(assets.image`dart`, me, 10, -10)
+}
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    me.setImage(assets.image`play-front`)
+})
+function get_same_sign (num: number, num_to_cpy_sign: number) {
+    if (num == 0 || num_to_cpy_sign == 0) {
+        return num
+    }
+    if (num_to_cpy_sign >= 0) {
+        if (num >= 0) {
+            return num
+        } else {
+            return num * -1
+        }
+    } else if (num >= 0) {
+        return num * -1
+    } else {
+        return num
+    }
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function (sprite, otherSprite) {
     on_end(false)
 })
-function on_end(lost: boolean) {
-    
+function on_end (lost: boolean) {
     if (lost == true) {
-        game.splash("end you'r score is " + ("" + ("" + score)))
+        game.splash("end you'r score is " + ("" + score))
         game.reset()
     } else {
         score += 1
-        me.sayText("Score: " + ("" + ("" + score)), 2000, true)
+        me.sayText("Score: " + ("" + score), 2000, true)
         set_game()
     }
-    
 }
-
-let poisons = 0
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite3, otherSprite3) {
+    console.log("a2")
+    enemyStats = statusbars.getStatusBarAttachedTo(StatusBarKind.EnemyHealth, otherSprite3)
+    if (enemyStats != null) {
+        enemyStats.value += -50
+    } else {
+        sprite3.sayText("nope")
+    }
+    sprites.destroy(sprite3)
+})
+let enemyStats: StatusBarSprite = null
+let projectileB: Sprite = null
 let times = 0
-let enemy2 : Sprite = null
-let me : Sprite = null
+let statEnemy: StatusBarSprite = null
+let enemy: Sprite = null
+let poisons = 0
 let score = 0
-let my_food : Sprite = null
-let enemy = null
-choose_game_type()
+let me: Sprite = null
+let my_food: Sprite = null
+my_food = sprites.create(assets.image`burger`, SpriteKind.Food)
+me = sprites.create(assets.image`play-front`, SpriteKind.Player)
+music.play(music.stringPlayable("C5 E E C5 E E D C ", 150), music.PlaybackMode.UntilDone)
+music.play(music.stringPlayable("B A A G A A B A ", 225), music.PlaybackMode.UntilDone)
+music.play(music.stringPlayable("C5 B C5 B C5 B C5 B ", 300), music.PlaybackMode.UntilDone)
+music.play(music.stringPlayable("G F E F G F E F ", 300), music.PlaybackMode.UntilDone)
+effects.confetti.startScreenEffect()
 initial_state()
 set_game()
