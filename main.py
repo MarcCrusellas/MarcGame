@@ -46,14 +46,15 @@ def on_a_pressed():
 controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
 
 def get_new_enemy():
-    global enemy, statEnemy, times
+    global enemy, statEnemy, rand1, times
     enemy = sprites.create(assets.image("""
         poison
     """), SpriteKind.enemy)
     statEnemy = statusbars.create(20, 2, StatusBarKind.enemy_health)
     statEnemy.attach_to_sprite(enemy)
-    tiles.place_on_tile(enemy,
-        tiles.get_tile_location(randint(1, 24), randint(1, 24)))
+    rand1 = randint(1, 23)
+    
+    tiles.place_on_tile(enemy, tiles.get_tile_location(rand1, rand1))
     if me.overlaps_with(enemy):
         enemy.destroy()
         if times < 10:
@@ -144,6 +145,7 @@ def on_end(lost: bool):
         score += 1
         me.say_text("Score: " + ("" + str(score)), 2000, True)
         effects.confetti.start_screen_effect(200)
+        set_game()
         music.play(music.string_playable("C5 E E C5 E E D C ", 150),
             music.PlaybackMode.UNTIL_DONE)
         music.play(music.string_playable("B A A G A A B A ", 225),
@@ -152,7 +154,6 @@ def on_end(lost: bool):
             music.PlaybackMode.UNTIL_DONE)
         music.play(music.string_playable("G F E F G F E F ", 300),
             music.PlaybackMode.UNTIL_DONE)
-        set_game()
 
 def on_on_overlap3(sprite3, otherSprite3):
     global enemyStats
@@ -167,6 +168,7 @@ sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, on_on_overlap3)
 enemyStats: StatusBarSprite = None
 projectileB: Sprite = None
 times = 0
+rand1 = 0
 statEnemy: StatusBarSprite = None
 enemy: Sprite = None
 poisons = 0

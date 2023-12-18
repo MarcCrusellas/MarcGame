@@ -2,7 +2,7 @@ namespace SpriteKind {
     export const humb = SpriteKind.create()
 }
 function set_game () {
-    tiles.placeOnTile(my_food, tiles.getTileLocation(randint(1, 24), randint(1, 24)))
+    tiles.placeOnTile(my_food, tiles.getTileLocation(randint(1, 23), randint(1, 23)))
     if (score == poisons) {
         controller.moveSprite(me, 100, 100)
         me.setStayInScreen(true)
@@ -33,7 +33,7 @@ function get_new_enemy () {
     enemy = sprites.create(assets.image`poison`, SpriteKind.Enemy)
     statEnemy = statusbars.create(20, 2, StatusBarKind.EnemyHealth)
     statEnemy.attachToSprite(enemy)
-    tiles.placeOnTile(enemy, tiles.getTileLocation(randint(1, 24), randint(1, 24)))
+    tiles.placeOnTile(enemy, tiles.getTileLocation(randint(1, 23), randint(1, 23)))
     if (me.overlapsWith(enemy)) {
         enemy.destroy()
         if (times < 10) {
@@ -127,11 +127,11 @@ let statEnemy: StatusBarSprite = null
 let enemy: Sprite = null
 let poisons = 0
 let score = 0
-let my_food: Sprite = null
 let me: Sprite = null
+let my_food: Sprite = null
 music.setVolume(255)
-me = sprites.create(assets.image`play-front`, SpriteKind.Player)
 my_food = sprites.create(assets.image`burger`, SpriteKind.Food)
+me = sprites.create(assets.image`play-front`, SpriteKind.Player)
 initial_state()
 set_game()
 forever(function () {
