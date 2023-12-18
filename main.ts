@@ -116,7 +116,7 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite3, ot
     if (enemyStats != null) {
         enemyStats.value += -50
     } else {
-        sprite3.sayText("nope")
+        sprite3.sayText("No")
     }
     sprites.destroy(sprite3)
 })
